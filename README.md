@@ -1,4 +1,4 @@
-# ROS 2 Package Generator CLI (`ros2gen`)
+# ROS 2 Package Generator CLI (`ros2gen`) ![Status](https://img.shields.io/badge/status-In%20Development-orange)
 
 **`ros2gen`** is a lightweight Command Line Interface (CLI) tool designed to instantly scaffold standardized ROS 2 robot packages (`description`, `hardware`, `bringup`, and `vision`) with auto-configured `CMakeLists.txt` installation rules.
 
