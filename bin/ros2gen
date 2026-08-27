@@ -1,64 +1,174 @@
 #!/bin/bash
 
-ROBOT_NAME=$1
-OPTION=$2
+show_help() {
+  echo "Usage: ros2gen <robot_name> [options]"
+  echo "Options:"
+  echo "  -h, --help    Show this help message and exit"
+  echo "  -b, --basic   Generate basic packages (description, hardware, bringup)"
+  echo "  --description Generate ONLY description package"
+  echo "  --hardware    Generate ONLY hardware package"
+  echo "  --bringup     Generate ONLY bringup package"
+  echo "  --interfaces  Generate ONLY interfaces package (msg/srv/action)"
+  echo "  --vision      Generate ONLY vision package"
+  echo "  --simulation  Generate ONLY simulation package"
+  echo "  --full        Generate ALL packages"
+  echo "  --update      Update ros2gen CLI to latest version"
+}
 
+# --- Fitur Self-Update ---
 if [ "$1" == "--update" ] || [ "$1" == "-u" ]; then
   echo "🔄 Checking for updates and updating ros2gen..."
   curl -fsSL https://raw.githubusercontent.com/ahmdmarzuki/ros2-pkg-generator/main/install.sh | bash
   exit 0
 fi
 
+ROBOT_NAME=""
+
+DO_DESC=false
+DO_HW=false
+DO_BRINGUP=false
+DO_INTERFACES=false
+DO_VISION=false
+DO_SIMULATION=false
+ANY_FLAG_SET=false
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -h|--help)
+      show_help
+      exit 0
+      ;;
+    -b|--basic)
+      DO_DESC=true
+      DO_HW=true
+      DO_BRINGUP=true
+      ANY_FLAG_SET=true
+      shift
+      ;;
+    --description)
+      DO_DESC=true
+      ANY_FLAG_SET=true
+      shift
+      ;;
+    --hardware)
+      DO_HW=true
+      ANY_FLAG_SET=true
+      shift
+      ;;
+    --bringup)
+      DO_BRINGUP=true
+      ANY_FLAG_SET=true
+      shift
+      ;;
+    --interfaces)
+      DO_INTERFACES=true
+      ANY_FLAG_SET=true
+      shift
+      ;;
+    --vision)
+      DO_VISION=true
+      ANY_FLAG_SET=true
+      shift
+      ;;
+    --simulation)
+      DO_SIMULATION=true
+      ANY_FLAG_SET=true
+      shift
+      ;;
+    --full)
+      DO_DESC=true
+      DO_HW=true
+      DO_BRINGUP=true
+      DO_INTERFACES=true
+      DO_VISION=true
+      DO_SIMULATION=true
+      ANY_FLAG_SET=true
+      shift
+      ;;
+    -*)
+      echo "❌ Unknown option: $1"
+      exit 1
+      ;;
+    *)
+      ROBOT_NAME=$1
+      shift
+      ;;
+  esac
+done
+
 if [ -z "$ROBOT_NAME" ]; then
-  echo "Usage: ros2gen <robot_name> [--vision|--full]"
-  echo "       ros2gen --update"
+  show_help
   exit 1
 fi
 
-echo "🚀 Scaffolding ROS 2 Packages for: ${ROBOT_NAME}..."
+if [ "$ANY_FLAG_SET" = false ]; then
+  DO_DESC=true
+  DO_HW=true
+  DO_BRINGUP=true
+fi
 
-# Description Package
-ros2 pkg create ${ROBOT_NAME}_description --build-type ament_cmake > /dev/null
-mkdir -p ${ROBOT_NAME}_description/{urdf,meshes,rviz}
-cat << EOF >> ${ROBOT_NAME}_description/CMakeLists.txt
+echo "Scaffolding ROS 2 Packages for: ${ROBOT_NAME}..."
 
-# --- Auto-generated Install Rules ---
-install(
-  DIRECTORY urdf meshes rviz
-  DESTINATION share/\${PROJECT_NAME}
-)
+# GENERATOR BLOCKS --------------------
+
+if [ "$DO_DESC" = true ]; then
+  echo "Generating ${ROBOT_NAME}_description..."
+  ros2 pkg create ${ROBOT_NAME}_description --build-type ament_cmake > /dev/null
+  mkdir -p ${ROBOT_NAME}_description/{urdf,meshes,rviz}
+  cat << EOF >> ${ROBOT_NAME}_description/CMakeLists.txt
+
+install(DIRECTORY urdf meshes rviz DESTINATION share/\${PROJECT_NAME})
 EOF
+fi
 
-# Hardware Package (ros2_control)
-ros2 pkg create ${ROBOT_NAME}_hardware --build-type ament_cmake \
-  --dependencies hardware_interface pluginlib rclcpp rclcpp_lifecycle > /dev/null
-mkdir -p ${ROBOT_NAME}_hardware/include/${ROBOT_NAME}_hardware ${ROBOT_NAME}_hardware/src
+if [ "$DO_HW" = true ]; then
+  echo "Generating ${ROBOT_NAME}_hardware..."
+  ros2 pkg create ${ROBOT_NAME}_hardware --build-type ament_cmake \
+    --dependencies hardware_interface pluginlib rclcpp rclcpp_lifecycle > /dev/null
+  mkdir -p ${ROBOT_NAME}_hardware/include/${ROBOT_NAME}_hardware ${ROBOT_NAME}_hardware/src
+fi
 
-# Bringup Package
-ros2 pkg create ${ROBOT_NAME}_bringup --build-type ament_cmake \
-  --dependencies rclcpp controller_manager > /dev/null
-mkdir -p ${ROBOT_NAME}_bringup/{launch,config,worlds}
-cat << EOF >> ${ROBOT_NAME}_bringup/CMakeLists.txt
+if [ "$DO_BRINGUP" = true ]; then
+  echo "Generating ${ROBOT_NAME}_bringup..."
+  ros2 pkg create ${ROBOT_NAME}_bringup --build-type ament_cmake \
+    --dependencies rclcpp controller_manager > /dev/null
+  mkdir -p ${ROBOT_NAME}_bringup/{launch,config,worlds}
+  cat << EOF >> ${ROBOT_NAME}_bringup/CMakeLists.txt
 
-# --- Auto-generated Install Rules ---
-install(
-  DIRECTORY launch config worlds
-  DESTINATION share/\${PROJECT_NAME}
-)
+install(DIRECTORY launch config worlds DESTINATION share/\${PROJECT_NAME})
 EOF
+fi
 
-# Vision Package (Optional)
-if [ "$OPTION" == "--vision" ] || [ "$OPTION" == "--full" ]; then
-  echo "👁️ Adding Vision Package..."
+if [ "$DO_INTERFACES" = true ]; then
+  echo "Generating ${ROBOT_NAME}_interfaces..."
+  ros2 pkg create ${ROBOT_NAME}_interfaces --build-type ament_cmake \
+    --dependencies rosidl_default_generators > /dev/null
+  mkdir -p ${ROBOT_NAME}_interfaces/{msg,srv,action}
+fi
+
+if [ "$DO_VISION" = true ]; then
+  echo "Generating ${ROBOT_NAME}_vision..."
   ros2 pkg create ${ROBOT_NAME}_vision --build-type ament_cmake \
     --dependencies rclcpp sensor_msgs cv_bridge image_transport > /dev/null
   mkdir -p ${ROBOT_NAME}_vision/{include,src,launch}
 fi
 
-# Fix ament_package() position in CMakeLists
-for pkg in $(ls -d ${ROBOT_NAME}_*/); do
+if [ "$DO_SIMULATION" = true ]; then
+  echo "Generating ${ROBOT_NAME}_simulation..."
+  ros2 pkg create ${ROBOT_NAME}_simulation --build-type ament_cmake \
+    --dependencies rclcpp ros_gz_sim > /dev/null
+  mkdir -p ${ROBOT_NAME}_simulation/{launch,worlds,models}
+  cat << EOF >> ${ROBOT_NAME}_simulation/CMakeLists.txt
+
+install(DIRECTORY launch worlds models DESTINATION share/\${PROJECT_NAME})
+EOF
+fi
+
+# FIX CMakeLists.txt (Memastikan ament_package ada di paling bawah)
+
+for pkg in $(ls -d ${ROBOT_NAME}_*/ 2>/dev/null); do
   sed -i '/ament_package()/d' ${pkg}CMakeLists.txt
   echo "ament_package()" >> ${pkg}CMakeLists.txt
 done
 
-echo "✅ Done! Packages generated successfully for '${ROBOT_NAME}'."
+echo "✅ Done!"
