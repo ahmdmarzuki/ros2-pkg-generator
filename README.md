@@ -11,7 +11,7 @@ Fully compatible with **ROS 2 Humble, Iron, and Jazzy**.
 Install instantly via `curl` in your terminal:
 
 ```bash
-curl -fsSL [https://raw.githubusercontent.com/](https://raw.githubusercontent.com/)ahmdmarzuki/ros2-pkg-generator/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/ahmdmarzuki/ros2-pkg-generator/main/install.sh | bash
 ```
 
 Alternatively, clone the repository locally and run the installer:
