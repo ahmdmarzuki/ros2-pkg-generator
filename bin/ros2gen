@@ -4,14 +4,14 @@ ROBOT_NAME=$1
 OPTION=$2
 
 if [ "$1" == "--update" ] || [ "$1" == "-u" ]; then
-  echo "🔄 Checking for updates and updating ros2-gen..."
+  echo "🔄 Checking for updates and updating ros2gen..."
   curl -fsSL https://raw.githubusercontent.com/ahmdmarzuki/ros2-pkg-generator/main/install.sh | bash
   exit 0
 fi
 
 if [ -z "$ROBOT_NAME" ]; then
-  echo "Usage: ros2-gen <robot_name> [--vision|--full]"
-  echo "       ros2-gen --update"
+  echo "Usage: ros2gen <robot_name> [--vision|--full]"
+  echo "       ros2gen --update"
   exit 1
 fi
 
