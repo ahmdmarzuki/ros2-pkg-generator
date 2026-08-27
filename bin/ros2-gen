@@ -1,0 +1,57 @@
+#!/bin/bash
+
+ROBOT_NAME=$1
+OPTION=$2
+
+if [ -z "$ROBOT_NAME" ]; then
+  echo "Usage: ros2-gen <robot_name> [--vision|--full]"
+  exit 1
+fi
+
+echo "🚀 Scaffolding ROS 2 Packages for: ${ROBOT_NAME}..."
+
+# Description Package
+ros2 pkg create ${ROBOT_NAME}_description --build-type ament_cmake > /dev/null
+mkdir -p ${ROBOT_NAME}_description/{urdf,meshes,rviz}
+cat << EOF >> ${ROBOT_NAME}_description/CMakeLists.txt
+
+# --- Auto-generated Install Rules ---
+install(
+  DIRECTORY urdf meshes rviz
+  DESTINATION share/\${PROJECT_NAME}
+)
+EOF
+
+# Hardware Package (ros2_control)
+ros2 pkg create ${ROBOT_NAME}_hardware --build-type ament_cmake \
+  --dependencies hardware_interface pluginlib rclcpp rclcpp_lifecycle > /dev/null
+mkdir -p ${ROBOT_NAME}_hardware/include/${ROBOT_NAME}_hardware ${ROBOT_NAME}_hardware/src
+
+# Bringup Package
+ros2 pkg create ${ROBOT_NAME}_bringup --build-type ament_cmake \
+  --dependencies rclcpp controller_manager > /dev/null
+mkdir -p ${ROBOT_NAME}_bringup/{launch,config,worlds}
+cat << EOF >> ${ROBOT_NAME}_bringup/CMakeLists.txt
+
+# --- Auto-generated Install Rules ---
+install(
+  DIRECTORY launch config worlds
+  DESTINATION share/\${PROJECT_NAME}
+)
+EOF
+
+# Vision Package (Optional)
+if [ "$OPTION" == "--vision" ] || [ "$OPTION" == "--full" ]; then
+  echo "👁️ Adding Vision Package..."
+  ros2 pkg create ${ROBOT_NAME}_vision --build-type ament_cmake \
+    --dependencies rclcpp sensor_msgs cv_bridge image_transport > /dev/null
+  mkdir -p ${ROBOT_NAME}_vision/{include,src,launch}
+fi
+
+# Fix ament_package() position in CMakeLists
+for pkg in $(ls -d ${ROBOT_NAME}_*/); do
+  sed -i '/ament_package()/d' ${pkg}CMakeLists.txt
+  echo "ament_package()" >> ${pkg}CMakeLists.txt
+done
+
+echo "✅ Done! Packages generated successfully for '${ROBOT_NAME}'."
