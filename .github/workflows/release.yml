@@ -1,0 +1,29 @@
+name: Release CLI
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Inject Version into Script
+        run: |
+          # Ambil tag terbaru dari git (contoh: v1.2.0)
+          VERSION_TAG=${GITHUB_REF#refs/tags/}
+
+          # Replace placeholder __ROS2GEN_VERSION__ dengan versi tag asli
+          sed -i "s/__ROS2GEN_VERSION__/${VERSION_TAG}/g" bin/ros2gen
+
+      - name: Create Release & Upload Artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            bin/ros2gen
+            install.sh

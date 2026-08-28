@@ -1,9 +1,12 @@
 #!/bin/bash
 
+VERSION="__ROS2GEN_VERSION__"
+
 show_help() {
   echo "Usage: ros2gen <robot_name> [options]"
   echo "Options:"
   echo "  -h, --help    Show this help message and exit"
+  echo "  -v, --version  Show version information and exit"
   echo "  -b, --basic   Generate basic packages (description, hardware, bringup)"
   echo "  --description Generate ONLY description package"
   echo "  --hardware    Generate ONLY hardware package"
@@ -49,6 +52,10 @@ while [[ $# -gt 0 ]]; do
   case $1 in
     -h|--help)
       show_help
+      exit 0
+      ;;
+    -v|--version)
+      echo "ros2gen version $VERSION"
       exit 0
       ;;
     -b|--basic)
