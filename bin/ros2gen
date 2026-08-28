@@ -22,6 +22,19 @@ if [ "$1" == "--update" ] || [ "$1" == "-u" ]; then
   exit 0
 fi
 
+if [ -d "/usr/local/share/ros2gen" ]; then
+  ROS2GEN_SHARE="/usr/local/share/ros2gen"
+else
+  ROS2GEN_SHARE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+fi
+
+source "${ROS2GEN_SHARE}/lib/pkg_description.sh"
+source "${ROS2GEN_SHARE}/lib/pkg_hardware.sh"
+source "${ROS2GEN_SHARE}/lib/pkg_bringup.sh"
+source "${ROS2GEN_SHARE}/lib/pkg_vision.sh"
+source "${ROS2GEN_SHARE}/lib/pkg_interfaces.sh"
+source "${ROS2GEN_SHARE}/lib/pkg_simulation.sh"
+
 ROBOT_NAME=""
 
 DO_DESC=false
@@ -122,46 +135,23 @@ EOF
 fi
 
 if [ "$DO_HW" = true ]; then
-  echo "Generating ${ROBOT_NAME}_hardware..."
-  ros2 pkg create ${ROBOT_NAME}_hardware --build-type ament_cmake \
-    --dependencies hardware_interface pluginlib rclcpp rclcpp_lifecycle > /dev/null
-  mkdir -p ${ROBOT_NAME}_hardware/include/${ROBOT_NAME}_hardware ${ROBOT_NAME}_hardware/src
+  generate_hardware "$ROBOT_NAME"
 fi
 
 if [ "$DO_BRINGUP" = true ]; then
-  echo "Generating ${ROBOT_NAME}_bringup..."
-  ros2 pkg create ${ROBOT_NAME}_bringup --build-type ament_cmake \
-    --dependencies rclcpp controller_manager > /dev/null
-  mkdir -p ${ROBOT_NAME}_bringup/{launch,config,worlds}
-  cat << EOF >> ${ROBOT_NAME}_bringup/CMakeLists.txt
-
-install(DIRECTORY launch config worlds DESTINATION share/\${PROJECT_NAME})
-EOF
+  generate_bringup "$ROBOT_NAME"
 fi
 
 if [ "$DO_INTERFACES" = true ]; then
-  echo "Generating ${ROBOT_NAME}_interfaces..."
-  ros2 pkg create ${ROBOT_NAME}_interfaces --build-type ament_cmake \
-    --dependencies rosidl_default_generators > /dev/null
-  mkdir -p ${ROBOT_NAME}_interfaces/{msg,srv,action}
+  generate_interfaces "$ROBOT_NAME"
 fi
 
 if [ "$DO_VISION" = true ]; then
-  echo "Generating ${ROBOT_NAME}_vision..."
-  ros2 pkg create ${ROBOT_NAME}_vision --build-type ament_cmake \
-    --dependencies rclcpp sensor_msgs cv_bridge image_transport > /dev/null
-  mkdir -p ${ROBOT_NAME}_vision/{include,src,launch}
+  generate_vision "$ROBOT_NAME"
 fi
 
 if [ "$DO_SIMULATION" = true ]; then
-  echo "Generating ${ROBOT_NAME}_simulation..."
-  ros2 pkg create ${ROBOT_NAME}_simulation --build-type ament_cmake \
-    --dependencies rclcpp ros_gz_sim > /dev/null
-  mkdir -p ${ROBOT_NAME}_simulation/{launch,worlds,models}
-  cat << EOF >> ${ROBOT_NAME}_simulation/CMakeLists.txt
-
-install(DIRECTORY launch worlds models DESTINATION share/\${PROJECT_NAME})
-EOF
+  generate_simulation "$ROBOT_NAME"
 fi
 
 # FIX CMakeLists.txt (Memastikan ament_package ada di paling bawah)
