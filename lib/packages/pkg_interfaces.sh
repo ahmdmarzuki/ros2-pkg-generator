@@ -5,7 +5,7 @@ generate_interfaces() {
   local pkg_dir="${robot_name}_interfaces"
 
   local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  local templates_dir="${script_dir}/../templates/interfaces"
+  local templates_dir="${script_dir}/../../templates/interfaces"
 
   if [ ! -d "$templates_dir" ]; then
     echo "Error: Template directory not found at $templates_dir"
