@@ -30,6 +30,8 @@ generate_interfaces() {
     --dependencies rosidl_default_generators std_msgs action_msgs \
     --description "Custom interfaces (msg, srv, action) for ${robot_name}" > /dev/null 2>&1
 
+  rm -rf "${pkg_name}/src" "${pkg_name}/include"
+  
   cp -r "${templates_dir}/msg" "$pkg_name/"
   cp -r "${templates_dir}/srv" "$pkg_name/"
   cp -r "${templates_dir}/action" "$pkg_name/"
