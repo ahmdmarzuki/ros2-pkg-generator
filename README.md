@@ -32,28 +32,46 @@ Navigate to the src/ directory of your ROS 2 workspace:
 cd ~/ros2_ws/src
 ```
 
-### 1. Basic Setup
+### 1. Interactive Mode (Default)
 
-Generates the 3 standard packages: `description`, `hardware` (ros2_control), and `bringup`.
+Simply pass your robot name to launch the terminal UI menu. Use ↑ / ↓ to navigate, `[Space]` to select/unselect packages, and `[Enter]` to confirm.
 
 ```bash
 ros2gen {robot-name}
 ```
 
-### 2. Vision Setup
-
-Generates the standard packages plus a dedicated `vision` package pre-configured with `sensor_msgs`, `cv_bridge`, and `image_transport` dependencies.
-
-```bash
-ros2gen {robot-name} --vision
+```text
+? Select ROS 2 packages to create for [my_robot]: (↑/↓: Navigate, [Space]: Select, [Enter]: Confirm)
+ ❯ [x] description
+   [x] hardware
+   [ ] bringup
+   [ ] interfaces
+   [x] vision
+   [ ] simulation
 ```
 
-### 3. Full Stack Setup
+### 2. Fast-Track Flags (Non-Interactive)
 
-Generates all packages including hardware, bringup, description, and vision.
+Bypass the interactive prompt by passing flags directly. Useful for power users or automated CI/CD scripts:
 
 ```bash
-ros2gen {robot-name} --full
+# Basic Setup: Generates description, hardware, and bringup packages
+ros2gen <robot-name> --basic
+
+# Full Stack: Generates all available packages
+ros2gen <robot-name> --full
+```
+
+### 3. Individual Package Flags
+
+You can also combine specific package flags:
+
+```bash
+# Example: Generate only description and vision packages
+ros2gen <robot-name> --description --vision
+
+# Example: Generate hardware interface and custom messages
+ros2gen <robot-name> --hardware --interfaces
 ```
 
 ## Generated Package Structure
