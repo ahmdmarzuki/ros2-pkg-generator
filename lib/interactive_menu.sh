@@ -30,23 +30,24 @@ run_interactive_menu() {
       fi
     done
 
-    read -rsn1 key
-    if [[ $key == $'\x1b' ]]; then
-      read -rsn2 key
-      case $key in
+    IFS= read -rsn1 key
+
+    if [[ "$key" == $'\x1b' ]]; then
+      read -rsn2 -t 0.1 key
+      case "$key" in
         '[A') ((cur--)); [ $cur -lt 0 ] && cur=$((${#options[@]} - 1)) ;; # Panah Atas
         '[B') ((cur++)); [ $cur -ge ${#options[@]} ] && cur=0 ;;           # Panah Bawah
       esac
-    elif [[ $key == "" ]]; then
-      # Press Enter -> Confirm selection
-      break
-    elif [[ $key == " " ]]; then
-      # Press Space -> Toggle checkbox
+
+    elif [[ "$key" == $' ' ]]; then
       if [ "${selected[cur]}" = true ]; then
         selected[cur]=false
       else
         selected[cur]=true
       fi
+
+    elif [[ -z "$key" || "$key" == $'\n' || "$key" == $'\r' ]]; then
+      break
     fi
 
     local lines_to_clear=$((${#options[@]} + 2))
