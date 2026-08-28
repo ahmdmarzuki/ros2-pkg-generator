@@ -1,6 +1,6 @@
 #!/bin/bash
 
-generate_bringup() {
+generate_hardware() {
   local robot_name=$1
   local pkg_dir="${robot_name}_hardware"
 
