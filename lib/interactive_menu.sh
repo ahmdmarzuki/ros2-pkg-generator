@@ -3,20 +3,26 @@
 run_interactive_menu() {
   local prompt="$1"
   shift
-  local options=("$@")
-  local selected=()
+  local -a options=("$@")
+  local -a selected=()
   local cur=0
 
+  # Init status pilihan (default false)
   for ((i=0; i<${#options[@]}; i++)); do
     selected[i]=false
   done
 
+  # Sembunyikan kursor & handle Ctrl+C
   tput civis
-  trap "tput cnorm; echo ''; exit 1" INT SIGINT
+  trap "tput cnorm; echo ''; exit 1" INT SIGINT SIGTERM
 
+  SELECTED_RESULT=()
+
+  # 1. Cetak Header HANYA 1 KALI di luar loop (dibuat lebih ringkas agar tidak ter-wrap)
+  echo -e "\033[1;36m? $prompt\033[0m \033[2m(↑/↓: Navigasi, [Spasi]: Pilih, [Enter]: Ok)\033[0m"
+
+  # 2. Loop Utama Hapus & Re-render Opsi
   while true; do
-    echo -e "\n\033[1;36m? $prompt\033[0m \033[2m(Gunakan ↑/↓ navigasi, [Spasi] pilih, [Enter] konfirmasi)\033[0m"
-    
     for ((i=0; i<${#options[@]}; i++)); do
       local mark="[ ]"
       if [ "${selected[i]}" = true ]; then
@@ -24,16 +30,17 @@ run_interactive_menu() {
       fi
 
       if [ $i -eq $cur ]; then
-        echo -e " \033[1;36m❯\033[0m $mark \033[1m${options[i]}\033[0m"
+        echo -e " \033[1;36m❯\033[0m $mark \033[1m${options[i]}\033[0m\033[K"
       else
-        echo -e "   $mark ${options[i]}"
+        echo -e "   $mark ${options[i]}\033[K"
       fi
     done
 
+    # Baca Keyboard Input
     IFS= read -rsn1 key
 
     if [[ "$key" == $'\x1b' ]]; then
-      read -rsn2 -t 0.1 key
+      read -rsn2 -t 0.05 key
       case "$key" in
         '[A') ((cur--)); [ $cur -lt 0 ] && cur=$((${#options[@]} - 1)) ;; # Panah Atas
         '[B') ((cur++)); [ $cur -ge ${#options[@]} ] && cur=0 ;;           # Panah Bawah
@@ -47,17 +54,19 @@ run_interactive_menu() {
       fi
 
     elif [[ -z "$key" || "$key" == $'\n' || "$key" == $'\r' ]]; then
+      # Tekan Enter -> Keluar loop tanpa naikkan kursor lagi
       break
     fi
 
-    local lines_to_clear=$((${#options[@]} + 2))
-    echo -en "\033[${lines_to_clear}A"
+    # Naikkan kursor HANYA sebanyak jumlah item opsi (${#options[@]})
+    echo -en "\033[${#options[@]}A"
   done
 
+  # Restore kursor terminal
   tput cnorm
   echo ""
 
-  SELECTED_RESULT=()
+  # Simpan hasil centang
   for ((i=0; i<${#options[@]}; i++)); do
     if [ "${selected[i]}" = true ]; then
       SELECTED_RESULT+=("${options[i]}")

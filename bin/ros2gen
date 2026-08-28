@@ -128,7 +128,7 @@ if [ "$ANY_FLAG_SET" = false ]; then
   
   run_interactive_menu "Pilih paket ROS 2 yang ingin dibuat:" "${OPTIONS[@]}"
 
-  if [ ${#INTERACTIVE_SELECTED[@]} -eq 0 ]; then
+  if [ ${#SELECTED_RESULT[@]} -eq 0 ]; then
     echo "⚠️ Tidak ada paket yang dipilih. Membatalkan instalasi."
     exit 0
   fi
