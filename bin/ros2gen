@@ -6,7 +6,7 @@ show_help() {
   echo "Usage: ros2gen <robot_name> [options]"
   echo "Options:"
   echo "  -h, --help    Show this help message and exit"
-  echo "  -v, --version  Show version information and exit"
+  echo "  -v, --version Show version information and exit"
   echo "  -b, --basic   Generate basic packages (description, hardware, bringup)"
   echo "  --description Generate ONLY description package"
   echo "  --hardware    Generate ONLY hardware package"
@@ -15,12 +15,12 @@ show_help() {
   echo "  --vision      Generate ONLY vision package"
   echo "  --simulation  Generate ONLY simulation package"
   echo "  --full        Generate ALL packages"
-  echo "  --update      Update ros2gen CLI to latest version"
+  echo "  -u, --update  Update ros2gen CLI to latest version"
 }
 
 # --- Fitur Self-Update ---
 if [ "$1" == "--update" ] || [ "$1" == "-u" ]; then
-  echo "🔄 Checking for updates and updating ros2gen..."
+  echo "Checking for updates and updating ros2gen..."
   curl -fsSL https://raw.githubusercontent.com/ahmdmarzuki/ros2gen/main/install.sh | bash
   exit 0
 fi
@@ -108,7 +108,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     -*)
-      echo "❌ Unknown option: $1"
+      echo "Unknown option: $1"
       exit 1
       ;;
     *)
@@ -119,38 +119,53 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ -z "$ROBOT_NAME" ]; then
-  show_help
-  exit 1
+  echo -en "\033[1;36m? Enter robot name:\033[0m "
+  read -r ROBOT_NAME
+
+  if [ -z "$ROBOT_NAME" ]; then
+    echo -e "Robot name cannot be empty. Aborted."
+    exit 1
+  fi
 fi
 
 if [ "$ANY_FLAG_SET" = false ]; then
-  OPTIONS=("description" "hardware" "bringup" "interfaces" "vision" "simulation")
-  
-  run_interactive_menu "Select ROS 2 packages to create for $ROBOT_NAME:" "${OPTIONS[@]}"
+  run_tree_menu "$ROBOT_NAME"
 
-  if [ ${#SELECTED_RESULT[@]} -eq 0 ]; then
-    echo "⚠️ No package selected. Installation cancelled."
-    exit 0
-  fi
-  
-  echo "Selected packages: ${SELECTED_RESULT[*]}"
-  
-  # Set flag berdasarkan hasil interaktif
-  for pkg in "${SELECTED_RESULT[@]}"; do
-    case $pkg in
-      description) DO_DESC=true ;;
-      hardware)    DO_HW=true ;;
-      bringup)     DO_BRINGUP=true ;;
-      interfaces)  DO_INTERFACES=true ;;
-      vision)      DO_VISION=true ;;
-      simulation)  DO_SIMULATION=true ;;
-    esac
-  done
+  case "$SELECTED_MODE" in
+    "basic")
+      DO_DESC=true
+      DO_HW=true
+      DO_BRINGUP=true
+      ;;
+    "full")
+      DO_DESC=true
+      DO_HW=true
+      DO_BRINGUP=true
+      DO_INTERFACES=true
+      DO_VISION=true
+      DO_SIMULATION=true
+      ;;
+    "custom")
+      if [ ${#SELECTED_RESULT[@]} -eq 0 ]; then
+        echo "⚠️ No package selected. Installation cancelled."
+        exit 0
+      fi
+
+      for pkg in "${SELECTED_RESULT[@]}"; do
+        case $pkg in
+          description) DO_DESC=true ;;
+          hardware)    DO_HW=true ;;
+          bringup)     DO_BRINGUP=true ;;
+          interfaces)  DO_INTERFACES=true ;;
+          vision)      DO_VISION=true ;;
+          simulation)  DO_SIMULATION=true ;;
+        esac
+      done
+      ;;
+  esac
 fi
 
 echo "Scaffolding ROS 2 Packages for: ${ROBOT_NAME}..."
-
-# GENERATOR BLOCKS --------------------
 
 if [ "$DO_DESC" = true ]; then
   generate_description "$ROBOT_NAME"
@@ -176,7 +191,6 @@ if [ "$DO_SIMULATION" = true ]; then
   generate_simulation "$ROBOT_NAME"
 fi
 
-# FIX CMakeLists.txt (Memastikan ament_package ada di paling bawah)
 
 for pkg in $(ls -d ${ROBOT_NAME}_*/ 2>/dev/null); do
   sed -i '/ament_package()/d' ${pkg}CMakeLists.txt
