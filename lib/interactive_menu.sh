@@ -7,21 +7,17 @@ run_interactive_menu() {
   local -a selected=()
   local cur=0
 
-  # Init status pilihan (default false)
   for ((i=0; i<${#options[@]}; i++)); do
     selected[i]=false
   done
 
-  # Sembunyikan kursor & handle Ctrl+C
   tput civis
   trap "tput cnorm; echo ''; exit 1" INT SIGINT SIGTERM
 
   SELECTED_RESULT=()
 
-  # 1. Cetak Header HANYA 1 KALI di luar loop (dibuat lebih ringkas agar tidak ter-wrap)
-  echo -e "\033[1;36m? $prompt\033[0m \033[2m(↑/↓: Navigasi, [Spasi]: Pilih, [Enter]: Ok)\033[0m"
+  echo -e "\033[1;36m? $prompt\033[0m \033[2m(↑/↓: Navigate, [Space]: Select, [Enter]: Confirm)\033[0m"
 
-  # 2. Loop Utama Hapus & Re-render Opsi
   while true; do
     for ((i=0; i<${#options[@]}; i++)); do
       local mark="[ ]"
@@ -36,14 +32,13 @@ run_interactive_menu() {
       fi
     done
 
-    # Baca Keyboard Input
     IFS= read -rsn1 key
 
     if [[ "$key" == $'\x1b' ]]; then
       read -rsn2 -t 0.05 key
       case "$key" in
-        '[A') ((cur--)); [ $cur -lt 0 ] && cur=$((${#options[@]} - 1)) ;; # Panah Atas
-        '[B') ((cur++)); [ $cur -ge ${#options[@]} ] && cur=0 ;;           # Panah Bawah
+        '[A') ((cur--)); [ $cur -lt 0 ] && cur=$((${#options[@]} - 1)) ;; # Arrow Up
+        '[B') ((cur++)); [ $cur -ge ${#options[@]} ] && cur=0 ;;           # Arrow Down
       esac
 
     elif [[ "$key" == $' ' ]]; then
@@ -54,19 +49,15 @@ run_interactive_menu() {
       fi
 
     elif [[ -z "$key" || "$key" == $'\n' || "$key" == $'\r' ]]; then
-      # Tekan Enter -> Keluar loop tanpa naikkan kursor lagi
       break
     fi
 
-    # Naikkan kursor HANYA sebanyak jumlah item opsi (${#options[@]})
     echo -en "\033[${#options[@]}A"
   done
 
-  # Restore kursor terminal
   tput cnorm
   echo ""
 
-  # Simpan hasil centang
   for ((i=0; i<${#options[@]}; i++)); do
     if [ "${selected[i]}" = true ]; then
       SELECTED_RESULT+=("${options[i]}")
