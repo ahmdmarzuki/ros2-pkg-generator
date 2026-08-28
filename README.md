@@ -1,4 +1,6 @@
-# ROS 2 Package Generator CLI (`ros2gen`) ![Status](https://img.shields.io/badge/status-In%20Development-orange)
+# ROS 2 Package Generator CLI (`ros2gen`)
+
+![Status](https://img.shields.io/badge/status-In%20Development-orange)
 
 **`ros2gen`** is a lightweight Command Line Interface (CLI) tool designed to instantly scaffold standardized ROS 2 robot packages (`description`, `hardware`, `bringup`, and `vision`) with auto-configured `CMakeLists.txt` installation rules.
 
@@ -95,3 +97,10 @@ ros2gen --update
 ## License
 
 Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information.
+
+## Uninstall
+
+```bash
+sudo rm /usr/local/bin/ros2gen
+sudo rm -rf /usr/local/share/ros2gen
+```
