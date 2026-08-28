@@ -38,6 +38,8 @@ source "${ROS2GEN_SHARE}/lib/pkg_vision.sh"
 source "${ROS2GEN_SHARE}/lib/pkg_interfaces.sh"
 source "${ROS2GEN_SHARE}/lib/pkg_simulation.sh"
 
+source "${ROS2GEN_SHARE}/lib/interactive_menu.sh"
+
 ROBOT_NAME=""
 
 DO_DESC=false
@@ -122,9 +124,28 @@ if [ -z "$ROBOT_NAME" ]; then
 fi
 
 if [ "$ANY_FLAG_SET" = false ]; then
-  DO_DESC=true
-  DO_HW=true
-  DO_BRINGUP=true
+  OPTIONS=("description" "hardware" "bringup" "interfaces" "vision" "simulation")
+  
+  run_interactive_menu "Pilih paket ROS 2 yang ingin dibuat:" "${OPTIONS[@]}"
+
+  if [ ${#INTERACTIVE_SELECTED[@]} -eq 0 ]; then
+    echo "⚠️ Tidak ada paket yang dipilih. Membatalkan instalasi."
+    exit 0
+  fi
+  
+  echo "Paket yang dipilih: ${SELECTED_RESULT[*]}"
+  
+  # Set flag berdasarkan hasil interaktif
+  for pkg in "${SELECTED_RESULT[@]}"; do
+    case $pkg in
+      description) DO_DESC=true ;;
+      hardware)    DO_HW=true ;;
+      bringup)     DO_BRINGUP=true ;;
+      interfaces)  DO_INTERFACES=true ;;
+      vision)      DO_VISION=true ;;
+      simulation)  DO_SIMULATION=true ;;
+    esac
+  done
 fi
 
 echo "Scaffolding ROS 2 Packages for: ${ROBOT_NAME}..."
