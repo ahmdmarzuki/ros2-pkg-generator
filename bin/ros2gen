@@ -21,7 +21,7 @@ show_help() {
 # --- Fitur Self-Update ---
 if [ "$1" == "--update" ] || [ "$1" == "-u" ]; then
   echo "🔄 Checking for updates and updating ros2gen..."
-  curl -fsSL https://raw.githubusercontent.com/ahmdmarzuki/ros2-pkg-generator/main/install.sh | bash
+  curl -fsSL https://raw.githubusercontent.com/ahmdmarzuki/ros2gen/main/install.sh | bash
   exit 0
 fi
 

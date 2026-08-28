@@ -13,14 +13,14 @@ Fully compatible with **ROS 2 Humble, Iron, and Jazzy**.
 Install instantly via `curl` in your terminal:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ahmdmarzuki/ros2-pkg-generator/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/ahmdmarzuki/ros2gen/main/install.sh | bash
 ```
 
 Alternatively, clone the repository locally and run the installer:
 
 ```bash
-git clone [https://github.com/](https://github.com/)ahmdmarzuki/ros2-pkg-generator.git
-cd ros2-pkg-generator
+git clone [https://github.com/](https://github.com/)ahmdmarzuki/ros2gen.git
+cd ros2gen
 ./install.sh
 ```
 

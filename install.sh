@@ -4,7 +4,7 @@ echo "Installing ros2gen CLI..."
 
 SHARE_DIR="/usr/local/share/ros2gen"
 BIN_DIR="/usr/local/bin"
-REPO_TARBALL="https://github.com/ahmdmarzuki/ros2-pkg-generator/archive/refs/heads/main.tar.gz"
+REPO_TARBALL="https://github.com/ahmdmarzuki/ros2gen/archive/refs/heads/main.tar.gz"
 
 IS_LOCAL=false
 if [ -d "lib" ] && [ -f "bin/ros2gen" ]; then
@@ -56,7 +56,7 @@ else
   TMP_DIR=$(mktemp -d)
   
   curl -fsSL "${REPO_TARBALL}" | tar -xz -C "${TMP_DIR}"
-  EXTRACTED_DIR="${TMP_DIR}/ros2-pkg-generator-main"
+  EXTRACTED_DIR="${TMP_DIR}/ros2gen-main"
   
   sudo cp -r "${EXTRACTED_DIR}/lib" "${EXTRACTED_DIR}/templates" "${SHARE_DIR}/" 2>/dev/null || sudo cp -r "${EXTRACTED_DIR}/lib" "${SHARE_DIR}/"
   sudo cp "${EXTRACTED_DIR}/bin/ros2gen" "${BIN_DIR}/ros2gen"
