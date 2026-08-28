@@ -31,12 +31,12 @@ else
   ROS2GEN_SHARE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 fi
 
-source "${ROS2GEN_SHARE}/lib/pkg_description.sh"
-source "${ROS2GEN_SHARE}/lib/pkg_hardware.sh"
-source "${ROS2GEN_SHARE}/lib/pkg_bringup.sh"
-source "${ROS2GEN_SHARE}/lib/pkg_vision.sh"
-source "${ROS2GEN_SHARE}/lib/pkg_interfaces.sh"
-source "${ROS2GEN_SHARE}/lib/pkg_simulation.sh"
+source "${ROS2GEN_SHARE}/lib/packages/pkg_description.sh"
+source "${ROS2GEN_SHARE}/lib/packages/pkg_hardware.sh"
+source "${ROS2GEN_SHARE}/lib/packages/pkg_bringup.sh"
+source "${ROS2GEN_SHARE}/lib/packages/pkg_vision.sh"
+source "${ROS2GEN_SHARE}/lib/packages/pkg_interfaces.sh"
+source "${ROS2GEN_SHARE}/lib/packages/pkg_simulation.sh"
 
 source "${ROS2GEN_SHARE}/lib/interactive_menu.sh"
 
