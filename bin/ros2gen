@@ -126,14 +126,14 @@ fi
 if [ "$ANY_FLAG_SET" = false ]; then
   OPTIONS=("description" "hardware" "bringup" "interfaces" "vision" "simulation")
   
-  run_interactive_menu "Pilih paket ROS 2 yang ingin dibuat:" "${OPTIONS[@]}"
+  run_interactive_menu "Select ROS 2 packages to create for $ROBOT_NAME:" "${OPTIONS[@]}"
 
   if [ ${#SELECTED_RESULT[@]} -eq 0 ]; then
-    echo "⚠️ Tidak ada paket yang dipilih. Membatalkan instalasi."
+    echo "⚠️ No package selected. Installation cancelled."
     exit 0
   fi
   
-  echo "Paket yang dipilih: ${SELECTED_RESULT[*]}"
+  echo "Selected packages: ${SELECTED_RESULT[*]}"
   
   # Set flag berdasarkan hasil interaktif
   for pkg in "${SELECTED_RESULT[@]}"; do
