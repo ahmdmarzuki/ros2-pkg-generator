@@ -1,14 +1,20 @@
 #!/bin/bash
 
 generate_interfaces() {
-  local robot_name=$1
-  local pkg_dir="${robot_name}_interfaces"
+  local robot_name="$1"
+
+  if [ -z "$robot_name" ]; then
+    echo -e "  \033[1;31m✗\033[0m Error: Robot name is required."
+    return 1
+  fi
+
+  local pkg_name="${robot_name}_interfaces"
 
   local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   local templates_dir="${script_dir}/../../templates/interfaces"
 
   if [ ! -d "$templates_dir" ]; then
-    echo "Error: Template directory not found at $templates_dir"
+    echo -e "  \033[1;31m✗\033[0m Error: Template directory not found at $templates_dir"
     return 1
   fi
 
@@ -17,7 +23,7 @@ generate_interfaces() {
     return 1
   fi
 
-  echo "Generating ${pkg_dir}..."
+  echo "Generating ${pkg_name}..."
 
   ros2 pkg create "$pkg_name" \
     --build-type ament_cmake \
@@ -34,5 +40,4 @@ generate_interfaces() {
   sed -i "/ament_package()/i ${cmake_snippet}" "${pkg_name}/CMakeLists.txt"
 
   echo -e "  \033[1;32m✓\033[0m Created package: \033[1m${pkg_name}\033[0m"
-
 }
