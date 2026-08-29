@@ -32,7 +32,7 @@ run_single_select() {
   tput civis
   trap "tput cnorm; echo ''; exit 1" INT SIGINT SIGTERM
 
-  echo -e "\033[1;36m? $prompt\033[0m \033[2m(↑/↓: Navigate, [Enter]: Select)\033[0m"
+  echo -e "$prompt\033[0m \033[2m(↑/↓: Navigate, [Enter]: Select)\033[0m"
 
   while true; do
     for ((i=0; i<${#options[@]}; i++)); do
@@ -69,7 +69,10 @@ run_single_select() {
   done
 
   tput cnorm
-  echo ""
+
+  local total_lines=$(( ${#options[@]} + 1 ))
+  echo -en "\033[${total_lines}A\033[J"
+
   SELECTED_SINGLE_INDEX=$cur
 }
 
@@ -90,7 +93,7 @@ run_multi_select() {
   SELECTED_RESULT=()
   BACK_CLICKED=false
 
-  echo -e "\033[1;36m? $prompt\033[0m \033[2m(↑/↓: Navigate, [Space]: Select, [Enter]: Confirm)\033[0m"
+  echo -e "$prompt\033[0m \033[2m(↑/↓: Navigate, [Space]: Select, [Enter]: Confirm)\033[0m"
 
   while true; do
     for ((i=0; i<${#options[@]}; i++)); do
@@ -137,7 +140,9 @@ run_multi_select() {
   done
 
   tput cnorm
-  echo ""
+
+  local total_lines=$(( ${#options[@]} + 1 ))
+  echo -en "\033[${total_lines}A\033[J"
 
   if [ "$BACK_CLICKED" = false ]; then
     for ((i=0; i<${#options[@]}; i++)); do
@@ -149,14 +154,15 @@ run_multi_select() {
 }
 
 run_tree_menu() {
-  ROBOT_NAME="$1"
+  # ROBOT_NAME="$1"
   CURRENT_SCREEN="LAYER_MAIN"
 
   while true; do
     case "$CURRENT_SCREEN" in
       "LAYER_MAIN")     layer_1_main ;;
-      "LAYER_PRESETS")  layer_2_presets ;;
-      "LAYER_CUSTOM")   layer_2_custom ;;
+      "LAYER_2_PRESETS")  layer_2_presets ;;
+      "LAYER_2_MULTI_PKG")   layer_2_multi_pkg ;;
+      "LAYER_2_CREATE_CUSTOM")   layer_2_create_custom ;;
       "DONE")           return 0 ;;
     esac
   done
