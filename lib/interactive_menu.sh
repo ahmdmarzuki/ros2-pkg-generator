@@ -1,5 +1,28 @@
 #!/bin/bash
 
+ALL_PACKAGES=(
+  "description"
+  "hardware"
+  "bringup"
+  "interfaces"
+  "vision"
+  "simulation"
+)
+
+PRESET_BASIC=("description" "hardware" "bringup")
+PRESET_FULL=("${ALL_PACKAGES[@]}")
+
+NAV_BACK="< Back"
+NAV_EXIT="Exit"
+
+LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ -d "${LIB_DIR}/options_menu" ]; then
+  for option_file in "${LIB_DIR}/options_menu"/*/*.sh; do
+    [ -f "$option_file" ] && source "$option_file"
+  done
+fi
+
 run_single_select() {
   local prompt="$1"
   shift
@@ -73,7 +96,6 @@ run_multi_select() {
     for ((i=0; i<${#options[@]}; i++)); do
       local item="${options[i]}"
       
-      # Handle tampilan opsi spesial [ Back ]
       if [[ "$item" == *"Back"* ]]; then
         if [ $i -eq $cur ]; then
           echo -e " \033[1;33m❯ $item\033[0m\033[K"
@@ -101,12 +123,10 @@ run_multi_select() {
         '[B') ((cur++)); [ $cur -ge ${#options[@]} ] && cur=0 ;;
       esac
     elif [[ "$key" == $' ' ]]; then
-      # Jangan centang tombol Back
       if [[ "${options[cur]}" != *"[ Back"* ]]; then
         [ "${selected[cur]}" = true ] && selected[cur]=false || selected[cur]=true
       fi
     elif [[ -z "$key" || "$key" == $'\n' || "$key" == $'\r' ]]; then
-      # Jika tekan enter di opsi Back
       if [[ "${options[cur]}" == *"Back"* ]]; then
         BACK_CLICKED=true
       fi
@@ -119,7 +139,6 @@ run_multi_select() {
   tput cnorm
   echo ""
 
-  # Simpan hasil centang jika tidak klik Back
   if [ "$BACK_CLICKED" = false ]; then
     for ((i=0; i<${#options[@]}; i++)); do
       if [ "${selected[i]}" = true ]; then
@@ -130,62 +149,15 @@ run_multi_select() {
 }
 
 run_tree_menu() {
-  local robot_name="$1"
+  ROBOT_NAME="$1"
+  CURRENT_SCREEN="LAYER_MAIN"
 
   while true; do
-    # LAYER 1: Main Categories
-    local layer1_options=(
-      "Preset Bundles (Basic / Full Stack)"
-      "Individual Packages (Custom Selection)"
-      "Exit"
-    )
-
-    run_single_select "Select setup mode for [${robot_name}]:" "${layer1_options[@]}"
-
-    case $SELECTED_SINGLE_INDEX in
-      0)
-        # LAYER 2A: Preset Bundles
-        local preset_options=(
-          "Basic Setup (description, hardware, bringup)"
-          "Full Stack (all packages)"
-          "< Back to Main Menu"
-        )
-        run_single_select "Choose a preset bundle:" "${preset_options[@]}"
-        
-        if [ $SELECTED_SINGLE_INDEX -eq 0 ]; then
-          SELECTED_MODE="basic"
-          return 0
-        elif [ $SELECTED_SINGLE_INDEX -eq 1 ]; then
-          SELECTED_MODE="full"
-          return 0
-        fi
-        # Jika indeks 2 ([ Back ]), loop akan berulang ke Layer 1
-        ;;
-
-      1)
-        # LAYER 2B: Custom Package Multi-Select
-        local pkg_options=(
-          "description"
-          "hardware"
-          "bringup"
-          "interfaces"
-          "vision"
-          "simulation"
-          "< Back to Main Menu"
-        )
-        run_multi_select "Select packages to create:" "${pkg_options[@]}"
-
-        if [ "$BACK_CLICKED" = false ]; then
-          SELECTED_MODE="custom"
-          # SELECTED_RESULT sudah berisi array paket yang dicentang
-          return 0
-        fi
-        ;;
-
-      2)
-        echo "Aborted."
-        exit 0
-        ;;
+    case "$CURRENT_SCREEN" in
+      "LAYER_MAIN")     layer_1_main ;;
+      "LAYER_PRESETS")  layer_2_presets ;;
+      "LAYER_CUSTOM")   layer_2_custom ;;
+      "DONE")           return 0 ;;
     esac
   done
 }
