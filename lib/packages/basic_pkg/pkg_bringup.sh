@@ -12,4 +12,6 @@ generate_bringup() {
 
 install(DIRECTORY launch config worlds DESTINATION share/\${PROJECT_NAME})
 EOF
+
+  echo -e "  \033[1;32m✓\033[0m Created package: \033[1m${PKG_NAME}\033[0m"
 }
