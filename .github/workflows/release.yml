@@ -1,29 +1,26 @@
-name: Release CLI
+name: Release
 
 on:
   push:
     tags:
-      - "v*"
+      - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          fetch-depth: 0
-
-      - name: Inject Version into Script
-        run: |
-          # Ambil tag terbaru dari git (contoh: v1.2.0)
-          VERSION_TAG=${GITHUB_REF#refs/tags/}
-
-          # Replace placeholder __ROS2GEN_VERSION__ dengan versi tag asli
-          sed -i "s/__ROS2GEN_VERSION__/${VERSION_TAG}/g" bin/ros2gen
-
-      - name: Create Release & Upload Artifacts
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            bin/ros2gen
-            install.sh
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          prerelease: true
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
