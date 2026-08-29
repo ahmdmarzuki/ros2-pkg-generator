@@ -69,7 +69,10 @@ run_single_select() {
   done
 
   tput cnorm
-  echo ""
+
+  local total_lines=$(( ${#options[@]} + 1 ))
+  echo -en "\033[${total_lines}A\033[J"
+
   SELECTED_SINGLE_INDEX=$cur
 }
 
@@ -137,7 +140,9 @@ run_multi_select() {
   done
 
   tput cnorm
-  echo ""
+  
+  local total_lines=$(( ${#options[@]} + 1 ))
+  echo -en "\033[${total_lines}A\033[J"
 
   if [ "$BACK_CLICKED" = false ]; then
     for ((i=0; i<${#options[@]}; i++)); do
