@@ -32,7 +32,7 @@ run_single_select() {
   tput civis
   trap "tput cnorm; echo ''; exit 1" INT SIGINT SIGTERM
 
-  echo -e "\033[1;36m? $prompt\033[0m \033[2m(↑/↓: Navigate, [Enter]: Select)\033[0m"
+  echo -e "$prompt\033[0m \033[2m(↑/↓: Navigate, [Enter]: Select)\033[0m"
 
   while true; do
     for ((i=0; i<${#options[@]}; i++)); do
@@ -93,7 +93,7 @@ run_multi_select() {
   SELECTED_RESULT=()
   BACK_CLICKED=false
 
-  echo -e "\033[1;36m? $prompt\033[0m \033[2m(↑/↓: Navigate, [Space]: Select, [Enter]: Confirm)\033[0m"
+  echo -e "$prompt\033[0m \033[2m(↑/↓: Navigate, [Space]: Select, [Enter]: Confirm)\033[0m"
 
   while true; do
     for ((i=0; i<${#options[@]}; i++)); do
@@ -140,7 +140,7 @@ run_multi_select() {
   done
 
   tput cnorm
-  
+
   local total_lines=$(( ${#options[@]} + 1 ))
   echo -en "\033[${total_lines}A\033[J"
 

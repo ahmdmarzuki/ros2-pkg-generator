@@ -2,8 +2,9 @@
 
 layer_2_presets() {
   local ROBOT_NAME=""
+  local LAYER_NAME="[Presets]"
 
-  echo -en "\033[1;36m? Enter package name:\033[0m "
+  echo -en "\033[1;33m${LAYER_NAME} \033[1;36mEnter package name:\033[0m "
   read -r ROBOT_NAME
 
   if [ -z "$ROBOT_NAME" ]; then
@@ -16,7 +17,7 @@ layer_2_presets() {
     "Full Stack (all packages)"
     "$NAV_BACK"
   )
-  run_single_select "Choose a preset bundle:" "${options[@]}"
+  run_single_select "\033[1;33m${LAYER_NAME} \033[1;37mChoose a preset bundle:" "${options[@]}"
 
   case $SELECTED_SINGLE_INDEX in
     0)

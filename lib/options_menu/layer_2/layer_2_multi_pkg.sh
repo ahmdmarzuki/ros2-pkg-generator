@@ -2,8 +2,9 @@
 
 layer_2_multi_pkg() {
   local ROBOT_NAME=""
+  local LAYER_NAME="[Multi Packages]"
     
-  echo -en "\033[1;36m? Enter package name:\033[0m "
+  echo -en "\033[1;33m${LAYER_NAME} \033[1;36mEnter package name:\033[0m "
   read -r ROBOT_NAME
 
   if [ -z "$ROBOT_NAME" ]; then
@@ -20,7 +21,7 @@ layer_2_multi_pkg() {
   ANY_FLAG_SET=false
 
   local options=("${ALL_PACKAGES[@]}" "$NAV_BACK")
-  run_multi_select "Select packages to create:" "${options[@]}"
+  run_multi_select "\033[1;33m${LAYER_NAME} \033[1;37mSelect packages to create:" "${options[@]}"
 
   if [ "$BACK_CLICKED" = true ]; then
     CURRENT_SCREEN="LAYER_MAIN" 
