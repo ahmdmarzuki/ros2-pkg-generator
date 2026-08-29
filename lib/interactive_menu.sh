@@ -149,14 +149,15 @@ run_multi_select() {
 }
 
 run_tree_menu() {
-  ROBOT_NAME="$1"
+  # ROBOT_NAME="$1"
   CURRENT_SCREEN="LAYER_MAIN"
 
   while true; do
     case "$CURRENT_SCREEN" in
       "LAYER_MAIN")     layer_1_main ;;
-      "LAYER_PRESETS")  layer_2_presets ;;
-      "LAYER_CUSTOM")   layer_2_custom ;;
+      "LAYER_2_PRESETS")  layer_2_presets ;;
+      "LAYER_2_MULTI_PKG")   layer_2_multi_pkg ;;
+      "LAYER_2_CREATE_CUSTOM")   layer_2_create_custom ;;
       "DONE")           return 0 ;;
     esac
   done
