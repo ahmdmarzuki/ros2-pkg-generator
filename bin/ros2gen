@@ -3,7 +3,8 @@
 VERSION="__ROS2GEN_VERSION__"
 
 if [ "$VERSION" = "__ROS2GEN_VERSION__" ]; then
-    VERSION=$(git describe --tags --always 2>/dev/null || echo "dev-build")
+  RAW_VERSION=$(git describe --tags --always 2>/dev/null || echo "dev-build")
+  VERSION=$(echo "$RAW_VERSION" | cut -d'-' -f1-2)
 fi
 
 show_help() {
@@ -50,7 +51,7 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     -v|--version)
-      echo "ros2gen version $VERSION"
+      echo "$VERSION"
       exit 0
       ;;
     -b|--basic)
