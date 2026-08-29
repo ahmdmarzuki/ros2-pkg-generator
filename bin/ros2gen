@@ -2,6 +2,10 @@
 
 VERSION="__ROS2GEN_VERSION__"
 
+if [ "$VERSION" = "__ROS2GEN_VERSION__" ]; then
+    VERSION=$(git describe --tags --always 2>/dev/null || echo "dev-build")
+fi
+
 show_help() {
   echo "Usage: ros2gen <robot_name> [options]"
   echo "Options:"
